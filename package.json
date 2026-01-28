@@ -16,7 +16,8 @@
     "framer-motion": "^11.5.4",
     "lucide-react": "0.522.0",
     "vite": "latest",
-    "@vitejs/plugin-react": "latest"
+    "@vitejs/plugin-react": "latest",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.18",

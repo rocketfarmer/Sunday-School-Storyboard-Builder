@@ -1,0 +1,24 @@
+{
+  "name": "sundaystoryboard-backend",
+  "version": "1.0.0",
+  "description": "Backend API for SundayStoryBoard with Replicate and Supabase",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["replicate", "ai", "image-generation", "supabase"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "replicate": "^0.25.2",
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
