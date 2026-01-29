@@ -40,6 +40,19 @@ export function ImageVariationPanel({
       setIsGenerating(false);
     }
   };
+
+  const handleRegenerate = async () => {
+    if (!image) return;
+    setIsGenerating(true);
+    try {
+      await onGenerateVariation(image.id, image.prompt, 'regenerate with same prompt');
+      onClose();
+    } catch (error) {
+      console.error('Failed to regenerate:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   if (!image) return null;
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Scene" maxWidth="2xl">
@@ -89,6 +102,15 @@ export function ImageVariationPanel({
               className="w-full">
 
               {isGenerating ? 'Generating...' : 'Generate Variation'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleRegenerate}
+              isLoading={isGenerating}
+              leftIcon={<RefreshCw className="w-4 h-4" />}
+              className="w-full">
+
+              Regenerate Original
             </Button>
             <Button
               variant="ghost"

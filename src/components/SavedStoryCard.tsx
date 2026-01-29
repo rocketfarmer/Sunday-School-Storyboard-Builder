@@ -1,20 +1,28 @@
 import React from 'react';
-import { Calendar, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { Story } from '../types/story';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
 interface SavedStoryCardProps {
   story: Story;
   onClick: () => void;
+  onDelete?: (storyId: string) => void;
 }
-export function SavedStoryCard({ story, onClick }: SavedStoryCardProps) {
+export function SavedStoryCard({ story, onClick, onDelete }: SavedStoryCardProps) {
   const date = new Date(story.createdAt).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
   });
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(story.id);
+  };
+
   return (
-    <Card hover onClick={onClick} className="h-full flex flex-col group">
+    <Card hover onClick={onClick} className="h-full flex flex-col group relative">
       <div className="aspect-video bg-gray-100 relative overflow-hidden border-b border-gray-100">
         {story.images.length > 0 ?
         <img
@@ -27,10 +35,19 @@ export function SavedStoryCard({ story, onClick }: SavedStoryCardProps) {
             <ImageIcon className="w-10 h-10 opacity-50" />
           </div>
         }
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex items-center gap-2">
           <Badge variant={story.status === 'completed' ? 'success' : 'warning'}>
             {story.status === 'completed' ? 'Completed' : 'Draft'}
           </Badge>
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg"
+              title="Delete story"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 

@@ -227,6 +227,19 @@ export function useStoryState() {
     await loadSavedStories();
   };
 
+  const deleteStory = async (storyId: string) => {
+    try {
+      await api.deleteStory(storyId);
+      await loadSavedStories();
+      if (currentStory?.id === storyId) {
+        setCurrentStory(null);
+      }
+    } catch (error) {
+      console.error('Error deleting story:', error);
+      throw error;
+    }
+  };
+
   return {
     currentStory,
     savedStories,
@@ -237,6 +250,7 @@ export function useStoryState() {
     generateStoryboard,
     generateVariation,
     saveStory,
+    deleteStory,
     setCurrentStory
   };
 }

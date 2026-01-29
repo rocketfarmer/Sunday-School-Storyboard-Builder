@@ -6,15 +6,19 @@ import { ImageVariationPanel } from '../components/ImageVariationPanel';
 import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { useStory } from '../contexts/StoryContext';
+import { useToast } from '../contexts/ToastContext';
 import { StoryboardImage } from '../types/story';
+import { downloadAllImages } from '../utils/downloadUtils';
+
 export function StoryboardPage() {
   const navigate = useNavigate();
   const { currentStory, saveStory, isLoading, generateVariation } = useStory();
+  const { showSuccess, showError, showInfo } = useToast();
   const [selectedImage, setSelectedImage] = useState<StoryboardImage | null>(
     null
   );
   const [isVariationPanelOpen, setIsVariationPanelOpen] = useState(false);
-  // Mock progress simulation
+  const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (isLoading) {
@@ -46,6 +50,26 @@ export function StoryboardPage() {
     saveStory();
     navigate('/saved');
   };
+
+  const handleDownload = async () => {
+    if (!currentStory || currentStory.images.length === 0) {
+      showError('No images to download');
+      return;
+    }
+
+    setIsDownloading(true);
+    showInfo(`Downloading ${currentStory.images.length} images...`);
+
+    try {
+      await downloadAllImages(currentStory.images, currentStory.title);
+      showSuccess('All images downloaded successfully');
+    } catch (error) {
+      showError('Failed to download some images. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (!currentStory) return null;
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -62,8 +86,13 @@ export function StoryboardPage() {
           <Button variant="outline" leftIcon={<Share2 className="w-4 h-4" />}>
             Share
           </Button>
-          <Button variant="outline" leftIcon={<Download className="w-4 h-4" />}>
-            Export PDF
+          <Button
+            variant="outline"
+            leftIcon={<Download className="w-4 h-4" />}
+            onClick={handleDownload}
+            disabled={isDownloading || currentStory.images.length === 0}
+          >
+            {isDownloading ? 'Downloading...' : 'Download All'}
           </Button>
           <Button onClick={handleSave} leftIcon={<Save className="w-4 h-4" />}>
             Save Story

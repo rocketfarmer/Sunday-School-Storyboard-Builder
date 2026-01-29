@@ -10,6 +10,7 @@ interface StoryContextType {
   generateCharacter: () => void;
   generateStoryboard: () => void;
   saveStory: () => void;
+  deleteStory: (storyId: string) => Promise<void>;
   setCurrentStory: (story: Story | null) => void;
 }
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
