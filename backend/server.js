@@ -134,11 +134,17 @@ app.get('/api/stories/:id', authenticateUser, async (req, res) => {
 // Create new story
 app.post('/api/stories', authenticateUser, async (req, res) => {
   try {
+    console.log('Creating story for user:', req.user.id);
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+
     const { title, originalInput, inputType, prompts, style } = req.body;
 
     if (!title || !originalInput || !inputType) {
+      console.log('Missing fields - title:', !!title, 'originalInput:', !!originalInput, 'inputType:', !!inputType);
       return res.status(400).json({ error: 'Missing required fields: title, originalInput, inputType' });
     }
+
+    console.log('Inserting story into database...');
 
     // Create the story
     const { data: story, error: storyError } = await supabase
@@ -154,10 +160,16 @@ app.post('/api/stories', authenticateUser, async (req, res) => {
       .select()
       .single();
 
-    if (storyError) throw storyError;
+    if (storyError) {
+      console.error('Error inserting story:', storyError);
+      throw storyError;
+    }
+
+    console.log('Story created with ID:', story.id);
 
     // Create story prompts if provided
     if (prompts && prompts.length > 0) {
+      console.log('Inserting', prompts.length, 'prompts...');
       const promptsToInsert = prompts.map((prompt, index) => ({
         story_id: story.id,
         sequence_number: prompt.order || index + 1,
@@ -169,10 +181,15 @@ app.post('/api/stories', authenticateUser, async (req, res) => {
         .from('story_prompts')
         .insert(promptsToInsert);
 
-      if (promptsError) throw promptsError;
+      if (promptsError) {
+        console.error('Error inserting prompts:', promptsError);
+        throw promptsError;
+      }
+      console.log('Prompts inserted successfully');
     }
 
     // Fetch the complete story with prompts
+    console.log('Fetching complete story...');
     const { data: completeStory, error: fetchError } = await supabase
       .from('stories')
       .select(`
@@ -188,11 +205,16 @@ app.post('/api/stories', authenticateUser, async (req, res) => {
       .eq('id', story.id)
       .single();
 
-    if (fetchError) throw fetchError;
+    if (fetchError) {
+      console.error('Error fetching complete story:', fetchError);
+      throw fetchError;
+    }
 
+    console.log('Story creation complete!');
     res.status(201).json({ story: completeStory });
   } catch (error) {
     console.error('Error creating story:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ error: 'Failed to create story', details: error.message });
   }
 });
